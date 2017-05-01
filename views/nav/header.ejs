@@ -10,12 +10,33 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<header>
-    <h1><%= title %></h1>
-</header>
-<nav>
-    <span><a class="btn btn-success btn-xs btn-block" href="/">主页</a></span>
-    <span><a class="btn btn-warning btn-xs btn-block" href="/login">登录</a></span>
-    <span><a class="btn btn-primary btn-xs btn-block" href="/reg">注册</a></span>
-</nav>
-<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <header>
+                    <h1><%= title %></h1>
+                    <p><%= errors %><%= infos %></p>
+                    <% if(infos){ %>
+                    <p><%=infos%><%=user%></p>
+                    <% } %>
+                    <% if(errors){ %>
+                    <p><%=errors%></p>
+                    <% } %>
+                </header>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-3">
+                <nav>
+                    <span><a class="btn btn-success btn-xs btn-block" href="/">主页</a></span>
+                    <% if (user) { %>
+                    <span><a class="btn btn-danger btn-xs btn-block" href="/post">发布</a></span>
+                    <span><a class="btn btn-primary btn-xs btn-block" href="/logout">退出</a></span>
+                    <% }else{ %>
+                    <span><a class="btn btn-warning btn-xs btn-block" href="/login">登录</a></span>
+                    <span><a class="btn btn-default btn-xs btn-block" href="/reg">注册</a></span>
+                    <% } %>
+                </nav>
+            </div>
+            <div class="col-xs-9">
+                <article>

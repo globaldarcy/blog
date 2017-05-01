@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var DB_URL = 'mongodb://localhost:27017/blog';
+mongoose.Promise = global.Promise;
 
 /**
  * 连接

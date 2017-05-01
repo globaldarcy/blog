@@ -1,4 +1,11 @@
 <%- include nav/header %>
+<% posts.map(function (post,index) { %>
+<h2><a href="#"><%= post.title %></a> </h2>
+<p class="info">
+    作者：<a href="#"><%= post.username %></a> | 日前：<span><%= post.date.minute %></span>
+</p>
+<p><%- post.post %></p>
+<% }) %>
 <p>这是主页</p>
 <img src="https://avatars1.githubusercontent.com/u/16668591?v=3&s=460" alt="">
 <%- include nav/footer %>
