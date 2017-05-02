@@ -5,7 +5,11 @@ var flash = require('connect-flash');
 var session = require('express-session');
 var User = require('../models/user');
 var Post = require('../models/post');
-
+var markdown = require('markdown').markdown;
+var multer = require('multer');
+var upload = multer({
+  dest:'./public/img'
+});
 var router = express.Router();
 
 router.use(session({
@@ -54,13 +58,17 @@ function getByDB (user, callback) {
 }
 //查询发布文章数据库
 function getPostByDB (user, callback) {
-    var whereObj = user === null ? {} : {username: user.username};
+    var whereObj = user === null ? {} : user;
     Post.find(whereObj, function (err, posts) {
         if (err) {
             console.log("getByConditions Error:" + err);
         }
         else {
             console.log("getByConditions Res:" + posts);
+            posts.forEach(function (doc) {
+              doc.post = markdown.toHTML(doc.post);
+            });
+            posts = Object.assign(posts);
             return callback(err,posts);
         }
     })
@@ -206,12 +214,81 @@ router.post('/post', function (req, res) {
         res.redirect('/');
     });
 });
-router.get('/post',checkLogin);
+router.get('/logout',checkLogin);
 router.get('/logout', function (req, res) {
     req.session.user = null;
     req.flash('success', '登出成功');
     res.redirect('/');
 });
+
+router.get('/upload',checkLogin);
+router.get('/upload', function (req, res) {
+  res.render('upload', {
+    title: '上传文件',
+    user: req.session.user,
+    success: req.flash('success').toString(),
+    error: req.flash('error').toString(),
+  });
+});
+
+router.post('/upload',checkLogin);
+router.post('/upload', upload.array('file', 5), function (req, res) {
+  req.flash('success', '恭喜你，上传成功');
+  res.redirect('/upload');
+});
+
+router.get('/u/:name', function (req,res) {
+  var user = {
+    username:req.params.name
+  };
+  if(!req.session.user){
+    req.flash('error', '请登录');
+    return res.redirect('/');
+  }
+  getPostByDB(user, function (err, posts) {
+    if(err){
+      posts = [];
+      req.flash('error', 'err');
+      return res.redirect('/');
+    }
+    res.render('index', {
+      title: user.username,
+      user: req.session.user,
+      posts:posts,
+      success: req.flash('success').toString(),
+      error: req.flash('error').toString(),
+    });
+  });
+});
+
+router.get('/u/:name/:day/:title', function (req,res) {
+  var user = {
+    username: req.params.name,
+    'date.day':req.params.day,
+    title:req.params.title
+  };
+  console.log(user);
+  if(!req.session.user){
+    req.flash('error', '请登录');
+    return res.redirect('/');
+  }
+  getPostByDB(user,function (err,posts) {
+    if(err){
+      req.flash('error', 'err');
+      return res.redirect('/');
+    }
+    console.log(posts[0].username);
+    res.render('article', {
+      title: req.params.title,
+      user: req.session.user,
+      post:posts[0],
+      success: req.flash('success').toString(),
+      error: req.flash('error').toString(),
+    });
+  })
+});
+
+
 
 function checkLogin(req,res,next) {
     if(!req.session.user){
