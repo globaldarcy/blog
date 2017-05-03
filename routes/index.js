@@ -36,10 +36,11 @@ router.use(function (req, res, next) {
 function getSave (user, callback) {
     user.save(function (err, obj) {
         if (err) {
-            console.log("getSave Error:" + err);
+            //console.log("getSave Error:" + err);
+            return callback(err);
         } else {
-            console.log("getSave Res:" + obj);
-            return callback(err, obj);
+            //console.log("getSave Res:" + obj);
+            return callback(null, obj);
         }
     });
 }
@@ -48,31 +49,77 @@ function getByDB (user, callback) {
     var whereObj = {username: user.username};
     User.findOne(whereObj, function (err, obj) {
         if (err) {
-            console.log("getByConditions Error:" + err);
+            //console.log("getByConditions Error:" + err);
+            return callback(err);
         }
         else {
-            console.log("getByConditions Res:" + typeof obj);
-            return callback(err,obj);
+            //console.log("getByConditions Res:" + obj);
+            return callback(null, obj);
         }
     })
 }
-//查询发布文章数据库
+//查询发布文章转换成html数据
 function getPostByDB (user, callback) {
     var whereObj = user === null ? {} : user;
     Post.find(whereObj, function (err, posts) {
         if (err) {
-            console.log("getByConditions Error:" + err);
+            return callback(err);
         }
         else {
-            console.log("getByConditions Res:" + posts);
+            // console.log("getByConditions Res111:" + posts);
             posts.forEach(function (doc) {
               doc.post = markdown.toHTML(doc.post);
             });
-            posts = Object.assign(posts);
-            return callback(err,posts);
+            // console.log("getByConditions Res2222:" + posts);
+            return callback(null, posts);
         }
-    })
+    });
 }
+//查询发布文章markdown数据
+function getPostMdByDB (user, callback) {
+  var whereObj = user === null ? {} : user;
+  Post.find(whereObj, function (err, posts) {
+    if (err) {
+      //console.log("getByConditions Error:" + err);
+      return callback(err);
+    }
+    else {
+      //console.log("getByConditions Res:" + posts);
+      return callback(null, posts);
+    }
+  });
+}
+//更新发布文章数据库
+function updatePostByDB (user, post, callback) {
+  var whereObj = user === null ? {} : user;
+  var updateObj = post;
+  Post.update(whereObj, updateObj, function (err, posts) {
+    if (err) {
+      //console.log("getByConditions Error:" + err);
+      return callback(err);
+    }
+    else {
+      //console.log("getByConditions Res:" + posts);
+      return callback(null, posts);
+    }
+  });
+}
+//删除发布文章
+function removePostByDB (user, callback) {
+  console.log("User: "+user);
+  Post.remove(user, function (err, posts) {
+    if (err) {
+      //console.log("getByConditions Error:" + err);
+      return callback(err);
+    }
+    else {
+      console.log("getByConditions Res:" + posts);
+      return callback(null, posts);
+    }
+  });
+}
+
+
 /* GET home page. */
 
 router.get('/', function (req, res) {
@@ -98,7 +145,6 @@ router.get('/reg', function (req, res) {
         error: req.flash('error').toString(),
     });
 });
-
 router.post('/reg',checkNotLogin);
 router.post('/reg', function (req, res) {
     var name = req.body.name;
@@ -130,7 +176,7 @@ router.post('/reg', function (req, res) {
                     return res.redirect('/');
                 }
                 req.session.user = dbUser; //用户信息存入session
-                console.log('恭喜你，注册成功 : ' + req.session.user);
+                //console.log('恭喜你，注册成功 : ' + req.session.user);
                 req.flash('success', '恭喜你，注册成功');
                 res.redirect('/');
             });
@@ -174,7 +220,7 @@ router.post('/login', function (req, res) {
             return res.redirect('/login');
         }
         req.session.user = obj; //用户信息存入session
-        console.log('恭喜你，登录成功 : ' + req.session.user);
+        //console.log('恭喜你，登录成功 : ' + req.session.user);
         req.flash('success', '恭喜你，登录成功');
         res.redirect('/');
     });
@@ -197,7 +243,7 @@ router.post('/post', function (req, res) {
         month:date.getFullYear() + '-' + (date.getMonth() + 1),
         day:date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
         minute:date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':' + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()),
-};
+    };
     var currentUser = req.session.user;
     var post = new Post({
         date:time,
@@ -220,7 +266,6 @@ router.get('/logout', function (req, res) {
     req.flash('success', '登出成功');
     res.redirect('/');
 });
-
 router.get('/upload',checkLogin);
 router.get('/upload', function (req, res) {
   res.render('upload', {
@@ -230,7 +275,6 @@ router.get('/upload', function (req, res) {
     error: req.flash('error').toString(),
   });
 });
-
 router.post('/upload',checkLogin);
 router.post('/upload', upload.array('file', 5), function (req, res) {
   req.flash('success', '恭喜你，上传成功');
@@ -267,7 +311,7 @@ router.get('/u/:name/:day/:title', function (req,res) {
     'date.day':req.params.day,
     title:req.params.title
   };
-  console.log(user);
+  //console.log(user);
   if(!req.session.user){
     req.flash('error', '请登录');
     return res.redirect('/');
@@ -277,14 +321,74 @@ router.get('/u/:name/:day/:title', function (req,res) {
       req.flash('error', 'err');
       return res.redirect('/');
     }
-    console.log(posts[0].username);
+    console.log('posts: '+posts);
+    console.log('posts[0]: '+posts);
+    console.log('posts[1]: '+posts);
     res.render('article', {
       title: req.params.title,
+      user: req.session.user,
+      posts: posts[0],
+      success: req.flash('success').toString(),
+      error: req.flash('error').toString(),
+    });
+  });
+});
+router.get('/edit/:name/:day/:title',checkLogin);
+router.get('/edit/:name/:day/:title',function (req,res) {
+  var currentUser = req.session.user;
+  var user = {
+    username: currentUser.username,
+    'date.day':req.params.day,
+    title:req.params.title
+  };
+  getPostMdByDB(user,function (err,posts) {
+    if(err){
+      req.flash('error', 'err');
+      return res.redirect('/');
+    }
+    res.render('edit', {
+      title: '编辑',
       user: req.session.user,
       post:posts[0],
       success: req.flash('success').toString(),
       error: req.flash('error').toString(),
     });
+  });
+});
+router.post('/edit/:name/:day/:title',checkLogin);
+router.post('/edit/:name/:day/:title',function (req,res) {
+  var currentUser = req.session.user;
+  var user = {
+    username: currentUser.username,
+    'date.day':req.params.day,
+    title:req.params.title
+  };
+  updatePostByDB(user,{'post':req.body.post},function (err, posts) {
+    var url = encodeURI('/u/'+req.params.name+'/'+req.params.day+'/'+req.params.title);
+    if(err){
+      req.flash('error', 'err');
+      return res.redirect(url);
+    }
+    req.flash('success', '恭喜你，修改成功');
+    res.redirect(url);
+  });
+});
+router.get('/remove/:name/:day/:title',checkLogin);
+router.get('/remove/:name/:day/:title',function (req,res) {
+  var currentUser = req.session.user;
+  var user ={
+    username: currentUser.username,
+    'date.day':req.params.day,
+    title:req.params.title
+  };
+  console.log('GetUser: '+user.username);
+  removePostByDB(user, function (err,posts) {
+    if(err){
+      req.flash('error', 'err');
+      return res.redirect('back');
+    }
+    req.flash('success', '恭喜你，删除成功');
+    res.redirect('/');
   })
 });
 

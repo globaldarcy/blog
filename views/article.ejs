@@ -1,6 +1,29 @@
 <%- include nav/header %>
-<p class="info">
-    作者：<a href="/u/<%= post.username %>"><%= post.username %></a> | 日前：<span><%= post.date.minute %></span>
+<p class="text-right">
+    <% if(user && (user.username == posts.username)) { %>
+    <a class="btn btn-primary" role="button" href="/edit/<%= posts.username %>/<%= posts.date.day %>/<%= posts.title %>">编辑</a>
+    <a class="btn btn-danger" role="button" data-toggle="modal" data-target=".bs-example-modal-sm">删除</a>
+    <% } %>
 </p>
-<p><%- post.post %></p>
+<p class="info">
+    作者：<a href="/u/<%= posts.username %>"><%= posts.username %></a> | 日前：<span><%= posts.date.minute %></span>
+</p>
+<p><%- posts.post %></p>
+<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridSystemModalLabel">提示!</h4>
+            </div>
+            <div class="modal-body">
+                <h3 class="text-center">是否删除 <<%= title %>> 这条微博?</h3>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <a class="btn btn-danger" role="button" href="/remove/<%= posts.username %>/<%= posts.date.day %>/<%= posts.title %>">确认</a>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
 <%- include nav/footer %>
