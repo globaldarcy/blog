@@ -1,0 +1,11 @@
+<br>
+<nav aria-label="...">
+    <ul class="pager">
+        <% if(!isFirstPage) { %>
+        <li><a href="?p=<%= page-1 %>">Previous</a></li>
+        <% } %>
+        <% if(!isLastPage) { %>
+        <li><a href="?p=<%= page+1 %>">Next</a></li>
+        <% } %>
+    </ul>
+</nav>

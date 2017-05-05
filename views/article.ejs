@@ -1,7 +1,8 @@
 <%- include nav/header %>
 <p class="text-right">
     <% if(user && (user.username == post.username)) { %>
-    <a class="btn btn-primary" role="button" href="/edit/<%= post.username %>/<%= post.date.day %>/<%= post.title %>">编辑</a>
+    <% var urlTitle = encodeURIComponent(post.title); %>
+    <a class="btn btn-primary" role="button" href="/edit/<%= post.username %>/<%= post.date.day %>/<%= urlTitle %>">编辑</a>
     <a class="btn btn-danger" role="button" data-toggle="modal" data-target=".bs-example-modal-sm">删除</a>
     <% } %>
 </p>
@@ -21,7 +22,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <a class="btn btn-danger" role="button" href="/remove/<%= post.username %>/<%= post.date.day %>/<%= post.title %>">确认</a>
+                <a class="btn btn-danger" role="button" href="/remove/<%= post.username %>/<%= post.date.day %>/<%= urlTitle %>">确认</a>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

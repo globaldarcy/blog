@@ -1,9 +1,11 @@
 <%- include nav/header %>
 <% posts.map(function (post,index) { %>
-<h2><a href="/u/<%= post.username %>/<%= post.date.day %>/<%= post.title %>"><%= post.title %></a></h2>
+<% var urlTitle = encodeURIComponent(post.title); %>
+<h2><a href="/u/<%= post.username %>/<%= post.date.day %>/<%= urlTitle %>"><%= post.title %></a></h2>
 <p class="info">
     作者：<a href="/u/<%= post.username %>"><%= post.username %></a> | 日前：<span><%= post.date.minute %></span>
 </p>
 <p><%- post.post %></p>
 <% }) %>
+<%- include paging %>
 <%- include nav/footer %>

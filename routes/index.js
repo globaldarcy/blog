@@ -116,23 +116,44 @@ function removePostByDB(user, callback) {
       return callback(err);
     }
     else {
-      console.log("getByConditions Res:" + posts);
+      //console.log("getByConditions Res:" + posts);
       return callback(null, posts);
     }
   });
 }
 
-
+//分页效果
+function getByPager(user, page, callback) {
+  var query = user === null ? {} : user;
+  Post.count(query,function (err, total) {
+    console.log('Total: '+total);
+    Post.find(query).skip((page - 1)*5).limit(5).sort({date:-1}).exec(function (err,docs) {
+      if(err){
+        return callback(err);
+      }
+      docs.forEach(function (doc) {
+        doc.post = markdown.toHTML(doc.post);
+      });
+      //console.log('Docs: '+docs);
+      callback(null,docs,total);
+    });
+  });
+}
 /* GET home page. */
 router.get('/', function (req, res) {
-  getPostByDB(null, function (err, posts) {
-    if (err) {
+  var page = req.query.p ? parseInt(req.query.p) : 1;
+  getByPager(null,page,function (err,posts,total) {
+    if(err){
       posts = [];
     }
+    console.log('Page: '+page);
     res.render('index', {
       title: '主页',
-      user: req.session.user,
       posts: posts,
+      page:page,
+      isFirstPage:(page - 1) == 0,
+      isLastPage:((page - 1) * 5 + posts.length) == total,
+      user: req.session.user,
       success: req.flash('success').toString(),
       error: req.flash('error').toString(),
     });
@@ -286,11 +307,28 @@ router.get('/u/:name', function (req, res) {
   var user = {
     username: req.params.name
   };
+  var page = req.query.p ? parseInt(req.query.p) : 1;
+  getByPager(user,page,function (err,posts,total) {
+    if(err){
+      req.flash('error', err);
+      return res.redirect('/');
+    }
+    res.render('index', {
+      title: '主页',
+      posts: posts,
+      page:page,
+      isFirstPage:(page - 1) == 0,
+      isLastPage:((page - 1) * 5 + posts.length) == total,
+      user: req.session.user,
+      success: req.flash('success').toString(),
+      error: req.flash('error').toString(),
+    });
+  });
   /*if(!req.session.user){
    req.flash('error', '请登录');
    return res.redirect('/');
    }*/
-  getPostByDB(user, function (err, posts) {
+  /*getPostByDB(user, function (err, posts) {
     if (err) {
       posts = [];
       req.flash('error', 'err');
@@ -303,13 +341,14 @@ router.get('/u/:name', function (req, res) {
       success: req.flash('success').toString(),
       error: req.flash('error').toString(),
     });
-  });
+  });*/
 });
 router.get('/u/:name/:day/:title', function (req, res) {
+  console.log(req.params.title);
   var user = {
     username: req.params.name,
     'date.day': req.params.day,
-    title: req.params.title
+    title:decodeURIComponent(req.params.title),
   };
   //console.log(user);
   /*if(!req.session.user){
