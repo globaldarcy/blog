@@ -121,7 +121,6 @@ function removePostByDB(user, callback) {
     }
   });
 }
-
 //分页效果
 function getByPager(user, page, callback) {
   var query = user === null ? {} : user;
@@ -138,6 +137,15 @@ function getByPager(user, page, callback) {
       callback(null,docs,total);
     });
   });
+}
+//返回所有文章的存档信息
+function getArchive(callback){
+  Post.find({},{username:1,date:1,title:1}).sort({date:-1}).exec(function (err, docs) {
+    if(err){
+      return callback(err);
+    }
+    callback(null,docs);
+  })
 }
 /* GET home page. */
 router.get('/', function (req, res) {
@@ -460,7 +468,21 @@ router.get('/remove/:name/:day/:title', function (req, res) {
     res.redirect('/');
   })
 });
-
+router.get('/archive', function (req, res) {
+  getArchive(function (err,posts) {
+    if(err){
+      req.flash('error',err);
+      return res.redirect('/');
+    }
+    res.render('archive', {
+      title:'存档',
+      posts:posts,
+      user:req.session.user,
+      success: req.flash('success').toString(),
+      error: req.flash('error').toString(),
+    });
+  });
+});
 
 function checkLogin(req, res, next) {
   if (!req.session.user) {

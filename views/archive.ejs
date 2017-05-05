@@ -1,0 +1,14 @@
+<%- include nav/header %>
+<ul>
+    <% var lastYear = 0 %>
+    <% posts.forEach(function (post,index) { %>
+        <% var urlTitle = encodeURIComponent(post.title); %>
+        <% if(lastYear != post.date.year){ %>
+            <li><h3><%= post.date.year %></h3></li>
+            <% lastYear=post.date.year %>
+        <% } %>
+        <li><time><%= post.date.minute %></time></li>
+        <li><a href="/u/<%=post.username %>/<%= post.date.day %>/<%= urlTitle %>"><%= post.title %></a></li>
+    <% })%>
+</ul>
+<%- include nav/footer %>
