@@ -22,7 +22,7 @@ article {
     padding: 0 20px;
 }*/
 
-nav a {
+nav.leftMenu a {
     display: block;
     margin: 15px 0;
 }
