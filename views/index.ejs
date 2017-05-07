@@ -2,7 +2,12 @@
 <% posts.map(function (post,index) { %>
 <% var urlTitle = encodeURIComponent(post.title); %>
 <h3><a href="/u/<%= post.username %>/<%= post.date.day %>/<%= urlTitle %>"><%= post.title %></a></h3>
+<a href="/u/<%= post.username %>"><img src="<%= post.head %>" alt="<%= post.username %>" class="img-circle"></a>
 <p class="info">
+    <% if (post.reprint_info.reprint_from) { %>
+    <br>
+    <a href="/u/<%= post.reprint_info.reprint_from.username %>/<%= post.reprint_info.reprint_from.day %>/<%= post.reprint_info.reprint_from.title %>">原文链接</a>
+    <% } %>
     作者：<a href="/u/<%= post.username %>"><%= post.username %></a> | 日前：<span><%= post.date.minute %></span> |
     标签：
     <% post.tags.forEach(function(tag, index){ %>
@@ -13,8 +18,13 @@
 </p>
 <p><%- post.post %></p>
 <p>
-    阅读：<span class="label label-info"><%= post.pv %></span> |
-    评论：<span class="label label-warning"><%- post.comments.length %></span>
+    阅读：<span class="label label-info"><%= post.pv %></span> | 评论：
+    <span class="label label-warning"><%- post.comments.length %></span> | 转载：
+    <% if(post.reprint_info.reprint_to){ %>
+        <span class="label label-success"><%= post.reprint_info.reprint_to.length %></span>
+    <% }else{ %>
+        <span class="label label-success"><%= 0 %></span>
+    <% } %>
 </p>
 <% }) %>
 <%- include paging %>

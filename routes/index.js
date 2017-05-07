@@ -113,7 +113,7 @@ function updatePostByDB(user, post, callback) {
   });
 }
 //删除发布文章
-function removePostByDB(user, callback) {
+/*function removePostByDB(user, callback) {
   console.log("User: " + user);
   Post.remove(user, function (err, posts) {
     if (err) {
@@ -125,6 +125,38 @@ function removePostByDB(user, callback) {
       return callback(null, posts);
     }
   });
+}*/
+//删除发布文章
+function removePostByDB(queryKey, callback) {
+    Post.findOne({username:queryKey.username,'date.day':queryKey.day,title:queryKey.title}, function (err, doc) {
+        if(err){
+            return callback(err);
+        }
+        var reprint_from = "";
+        if(doc.reprint_info.reprint_from){
+            reprint_from = doc.reprint_info.reprint_from;
+        }
+        if(reprint_from !== ""){
+            Post.update({
+                username:reprint_from.username,
+                "date.day":reprint_from.day,
+                title:reprint_from.title
+            },{
+                $pull:{"reprint_info.reprint_to":{username:queryKey.username,day:queryKey.day,title:queryKey.title}}
+            },function (err) {
+                if(err){
+                    return callback(err);
+                }
+            });
+        }
+        console.log(queryKey.day);
+        Post.remove({username:queryKey.username,"date.day":queryKey.day,title:queryKey.title},function (err, doc) {
+            if(err){
+                return callback(err);
+            }
+            callback(null, doc);
+        })
+    })
 }
 //分页效果
 function getByPager(user, page, callback) {
@@ -180,6 +212,56 @@ function search(keyword, callback){
         callback(null,docs);
     })
 }
+//转载一篇文章
+function reprint(reprint_from, reprint_to, callback) {
+    Post.findOne({username:reprint_from.username,'date.day':reprint_from.day, title:reprint_from.title},function (err,doc) {
+        if(err){
+          return callback(err);
+        }
+        var date = new Date();
+        var time = {
+            date: date,
+            year: date.getFullYear(),
+            month: date.getFullYear() + '-' + (date.getMonth() + 1),
+            day: date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
+            minute: date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':' + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()),
+        };
+        //delete doc._id; //删除原来的_id
+        doc.username = reprint_to.username;
+        doc.head = reprint_to.head;
+        doc.date = time;
+        doc.title = (doc.title.search(/[转载]/) > -1) ? doc.title : "[转载]" + doc.title;
+        doc.comments = [];
+        doc.reprint_info = {'reprint_from':reprint_from};
+        doc.pv = 0;
+        //更新被转载的原文章的reprint_info内的reprint_to
+        Post.update({
+            username:reprint_from.username,
+            'date.day':reprint_from.day,
+            title:reprint_from.title
+        },{
+          $push:{'reprint_info.reprint_to':{username:doc.username,time:doc.date.minute,title:doc.title}}
+        },function (err) {
+            if(err){
+              return callback(err);
+            }
+        });
+        var obj = new Post({
+            date:doc.date,
+            username: doc.username,     //发布文章的用户
+            head:doc.head,          //头像
+            title: doc.title,        //文章标题
+            tags:doc.tags,           //标签
+            post: doc.post,         //文章内容
+            comments:doc.comments,       //评论
+            reprint_info:doc.reprint_info,  //转载
+            pv:doc.pv,            //pv统计
+        });
+        //将转载生成的副本修改后存入数据库，并返回存储后的文档
+        callback(err, obj);
+    });
+}
+
 /* GET home page. */
 router.get('/', function (req, res) {
   var page = req.query.p ? parseInt(req.query.p) : 1;
@@ -221,9 +303,13 @@ router.post('/reg', function (req, res) {
   }
   //生成密码的md5值
   var md5 = crypto.createHash('md5');
+  var md6 = crypto.createHash('md5');
+  var name_MD5 = md6.update(name).digest('hex');
+  var head = 'http://www.gravatar.com/avatar/' + name_MD5 + '?s=48';
   pw = md5.update(pw).digest('hex');
   var user = new User({
     username: name,
+    head: head,
     userpwd: pw,
     useremail: email,
   });
@@ -309,12 +395,19 @@ router.post('/post', function (req, res) {
   };
   var currentUser = req.session.user;
   var tags = [req.body.tag1,req.body.tag2,req.body.tag3];
+  var reprint_info = {
+      reprint_from: {},
+      reprint_to:[],
+  };
   var post = new Post({
     date: time,
     username: currentUser.username,
+    head: currentUser.head,
     title: req.body.title,
     tags: tags,
     post: req.body.post,
+    reprint_info:reprint_info,
+    pv:0,
   });
   getSave(post, function (err) {
     if (err) {
@@ -386,7 +479,7 @@ router.get('/u/:name', function (req, res) {
   });*/
 });
 router.get('/u/:name/:day/:title', function (req, res) {
-  console.log(req.params.title);
+  //console.log(req.params.title);
   var user = {
     username: req.params.name,
     'date.day': req.params.day,
@@ -417,10 +510,16 @@ router.post('/u/:name/:day/:title', function (req, res) {
         req.flash('error', '未登录！');
         return res.redirect('/login');
     }
+    var name = req.body.name;
+    //生成密码的md5值
+    var md5 = crypto.createHash('md5');
+    var name_MD5 = md5.update(name).digest('hex');
+    var head = 'http://www.gravatar.com/avatar/' + name_MD5 + '?s=48';
   var date = new Date();
   var time = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':' + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
   var comment = {
     name: req.body.name,
+    head:head,
     email: req.body.email,
     website: req.body.website,
     time: time,
@@ -436,13 +535,11 @@ router.post('/u/:name/:day/:title', function (req, res) {
       req.flash('error', 'err');
       return res.redirect('back');
     }
-    console.log(posts[0].comments.push(comment));
     updatePostByDB(user, {$push:{'comments':comment}}, function (err, commentss) {
       if (err) {
         req.flash('error', 'err');
         return res.redirect('back');
       }
-      console.log('留言成功'+commentss);
       req.flash('success', '恭喜你, 留言成功!');
       res.redirect('back');
     });
@@ -491,13 +588,12 @@ router.post('/edit/:name/:day/:title', function (req, res) {
 router.get('/remove/:name/:day/:title', checkLogin);
 router.get('/remove/:name/:day/:title', function (req, res) {
   var currentUser = req.session.user;
-  var user = {
-    username: currentUser.username,
-    'date.day': req.params.day,
-    title: req.params.title
+  var queryKey = {
+    'username': currentUser.username,
+    'day': req.params.day,
+    'title': req.params.title
   };
-  console.log('GetUser: ' + user.username);
-  removePostByDB(user, function (err, posts) {
+  removePostByDB(queryKey, function (err) {
     if (err) {
       req.flash('error', 'err');
       return res.redirect('back');
@@ -505,6 +601,40 @@ router.get('/remove/:name/:day/:title', function (req, res) {
     req.flash('success', '恭喜你，删除成功');
     res.redirect('/');
   })
+});
+router.get('/reprint/:name/:day/:title', checkLogin);
+router.get('/reprint/:name/:day/:title', function (req, res) {
+    var user = {
+        username: req.params.name,
+        'date.day': req.params.day,
+        title: req.params.title
+    };
+    getPostMdByDB(user, function (err, posts) {
+        if (err) {
+            req.flash('error', 'err');
+            return res.redirect('back');
+        }else{
+            var currentUser = req.session.user;
+            var reprint_from = {username:posts[0].username, day:posts[0].date.day, title:posts[0].title};
+            var reprint_to = {username:currentUser.username, head:currentUser.head};
+            reprint(reprint_from,reprint_to,function (err, post) {
+                if (err) {
+                    req.flash('error', 'err');
+                    return res.redirect('back');
+                }
+                getSave(post,function (err, obj) {
+                    if (err) {
+                        req.flash('error', err);
+                        return res.redirect('back');
+                    }
+                    req.flash('success', '转载成功！');
+                    var urlTitle = encodeURIComponent(obj.title);
+                    var url = encodeURI('/u/' + obj.username + '/' + obj.date.day + '/' + urlTitle)
+                    res.redirect(url);
+                })
+            });
+        }
+    });
 });
 router.get('/archive', function (req, res) {
   getArchive(function (err,posts) {
@@ -551,6 +681,29 @@ router.get('/tags/:tag',function (req,res) {
         });
     })
 });
+router.get('/search', function (req, res) {
+    search(req.query.keyword, function (err,posts) {
+        if(err){
+          req.flash('error', err);
+          return res.redirect('/');
+        }
+        res.render('search', {
+          title: '搜索：' + req.query.keyword,
+            posts: posts,
+            user: req.session.user,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString(),
+        });
+    });
+});
+router.get('/links', function (req, res) {
+    res.render('links', {
+        title: '友情链接',
+        user: req.session.user,
+        success: req.flash('success').toString(),
+        error: req.flash('error').toString(),
+    });
+});
 
 function checkLogin(req, res, next) {
   if (!req.session.user) {
@@ -559,7 +712,9 @@ function checkLogin(req, res, next) {
   }
   next();
 }
-
+router.use(function (req,res) {
+    res.render('404');
+});
 function checkNotLogin(req, res, next) {
   if (req.session.user) {
     req.flash('error', '已登录！');

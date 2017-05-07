@@ -8,6 +8,7 @@ var UserSchema = new Schema({
     username: String,                    //用户账号
     userpwd: String,                        //密码
     useremail: String,                     //Email
+    head:String,                            //头像
     // dbs:String,
     // host:String,
     // port:Number,

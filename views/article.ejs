@@ -5,13 +5,36 @@
     <a class="btn btn-primary" role="button" href="/edit/<%= post.username %>/<%= post.date.day %>/<%= urlTitle %>">编辑</a>
     <a class="btn btn-danger" role="button" data-toggle="modal" data-target=".bs-example-modal-sm">删除</a>
     <% } %>
+    <% var flag = 1 %>
+    <% if (user && (user.username != post.username)) { %>
+        <% if ((post.reprint_info.reprint_from != undefined) && (user.username == post.reprint_info.reprint_from.username)) { %>
+            <% flag = 0 %>
+        <% } %>
+        <% if (post.reprint_info.reprint_to != undefined) { %>
+            <% post.reprint_info.reprint_to.forEach(function (reprint_to, index) { %>
+                <% if(user.username == reprint_to.name ) { %>
+                    <% flag = 0 %>
+                <% } %>
+            <% }) %>
+        <% } %>
+    <% } else { %>
+        <% flag = 0 %>
+    <% } %>
+    <% if(flag) { %>
+        <% var urlT = encodeURIComponent(post.title); %>
+        <a class="btn btn-success" role="button" href="/reprint/<%= post.username %>/<%= post.date.day %>/<%= urlT %>">转载</a>
+    <% } %>
 </p>
 <p class="info">
+    <% if (post.reprint_info.reprint_from) { %>
+    <br>
+    <a href="/u/<%= post.reprint_info.reprint_from.username %>/<%= post.reprint_info.reprint_from.day %>/<%= post.reprint_info.reprint_from.title %>">原文链接</a>
+    <% } %>
     作者：<a href="/u/<%= post.username %>"><%= post.username %></a> | 日前：<span><%= post.date.minute %></span> |
     标签：
     <% post.tags.forEach(function(tag, index){ %>
     <% if (tag) { %>
-    <a class="btn btn-primary" role="button" href="/tags/<%= tag %>"><%= tag %> <span class="badge">4</span></a>
+    <a class="label label-info" href="/tags/<%= tag %>"><%= tag %></a>
     <% } %>
     <% }) %>
 </p>

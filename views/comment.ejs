@@ -1,6 +1,10 @@
 <br>
 <% post.comments.forEach(function(comment, index){ %>
-<p><a href="<%= comment.website %>"><%= comment.name %></a><span class="info">回复于 <%= comment.title %></span></p>
+<p>
+    <a href="/u/<%= post.username %>"><img style=" width: 48px; height: 48px;" src="<%= post.head %>" alt="<%= post.username %>" class="img-circle"></a>
+    <a href="<%= comment.website %>"><%= comment.name %></a>
+    <span class="info">回复于 <%= comment.title %></span>
+</p>
 <p><%- comment.content %></p>
 <% }) %>
 
