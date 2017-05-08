@@ -1,0 +1,88 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "kindeditor",
+        "scope": null,
+        "escapedName": "kindeditor",
+        "name": "kindeditor",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "C:\\Users\\Shawn\\WebstormProjects\\blog"
+    ]
+  ],
+  "_from": "kindeditor@latest",
+  "_id": "kindeditor@4.1.10",
+  "_inCache": true,
+  "_location": "/kindeditor",
+  "_nodeVersion": "0.12.3",
+  "_npmUser": {
+    "name": "caolvchong",
+    "email": "caolvchong@gmail.com"
+  },
+  "_npmVersion": "2.9.1",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "kindeditor",
+    "scope": null,
+    "escapedName": "kindeditor",
+    "name": "kindeditor",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/kindeditor/-/kindeditor-4.1.10.tgz",
+  "_shasum": "bbbbba9de38e13f8568205be765ef7339eb6d515",
+  "_shrinkwrap": null,
+  "_spec": "kindeditor",
+  "_where": "C:\\Users\\Shawn\\WebstormProjects\\blog",
+  "dependencies": {},
+  "description": "WYSIWYG HTML editor",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-compress": "~0.5.3",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-uglify": "~0.2.7"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "bbbbba9de38e13f8568205be765ef7339eb6d515",
+    "tarball": "https://registry.npmjs.org/kindeditor/-/kindeditor-4.1.10.tgz"
+  },
+  "filename": "kindeditor",
+  "gitHead": "d78c4f9e8a9259acc62d6c8ba7df991c33b6ce02",
+  "keywords": [
+    "WYSIWYG",
+    "editor"
+  ],
+  "main": "kindeditor-all.js",
+  "maintainers": [
+    {
+      "name": "caolvchong",
+      "email": "caolvchong@gmail.com"
+    }
+  ],
+  "name": "kindeditor",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "scripts": {},
+  "spm": {
+    "main": "kindeditor-all.js",
+    "dependencies": {},
+    "devDependencies": {},
+    "tests": "",
+    "ignore": [
+      "components",
+      "dist",
+      "spm_modules"
+    ],
+    "buildArgs": ""
+  },
+  "version": "4.1.10"
+}

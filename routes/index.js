@@ -5,7 +5,7 @@ var flash = require('connect-flash');
 var session = require('express-session');
 var User = require('../models/user');
 var Post = require('../models/post');
-var markdown = require('markdown').markdown;
+// var markdown = require('markdown').markdown;
 var multer = require('multer');
 var passport = require('passport');
 var upload = multer({
@@ -73,12 +73,12 @@ function getPostByDB(user, callback) {
             return callback(err);
           }
       });
-      posts.forEach(function (doc) {
+      /*posts.forEach(function (doc) {
         doc.post = markdown.toHTML(doc.post);
         doc.comments.forEach(function (comment) {
           comment.content = markdown.toHTML(comment.content);
         });
-      });
+      });*/
       // console.log("getByConditions Res2222:" + posts);
       return callback(null, posts);
     }
@@ -168,9 +168,9 @@ function getByPager(user, page, callback) {
       if(err){
         return callback(err);
       }
-      docs.forEach(function (doc) {
+      /*docs.forEach(function (doc) {
         doc.post = markdown.toHTML(doc.post);
-      });
+      });*/
       //console.log('Docs: '+docs);
       callback(null,docs,total);
     });
@@ -349,9 +349,10 @@ router.get('/login/github', passport.authenticate('github', {session:false}));
 router.get('/login/github/callback', passport.authenticate('github',{
   session:false,
   failureRedirect: '/login',
-  successFlash: '登录成功?',
+  successFlash: '登录成功?'
 }), function(req, res){
-  req.session.user = {name:req.user.username, head:'https://gravatar.com/avatar/' + req.user._json.gravatar_id + '?s=48'}
+  req.session.user = {name:req.user.username, head:'https://gravatar.com/avatar/' + req.user._json.gravatar_id + '?s=48'};
+  res.redirect('/');
 });
 router.post('/login', checkNotLogin);
 router.post('/login', function (req, res) {

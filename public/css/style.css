@@ -27,4 +27,4 @@ nav.leftMenu a {
     margin: 15px 0;
 }
 article p img{
-    width:100%;}
+    max-width:100%;}
