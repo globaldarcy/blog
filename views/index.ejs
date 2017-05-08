@@ -1,8 +1,7 @@
 <%- include nav/header %>
 <% posts.map(function (post,index) { %>
 <% var urlTitle = encodeURIComponent(post.title); %>
-<h3><a href="/u/<%= post.username %>/<%= post.date.day %>/<%= urlTitle %>"><%= post.title %></a></h3>
-<a href="/u/<%= post.username %>"><img src="<%= post.head %>" alt="<%= post.username %>" class="img-circle"></a>
+<h3><a href="/u/<%= post.username %>/<%= post.date.day %>/<%= urlTitle %>"><%= post.title %></a> <a href="/u/<%= post.username %>"><img src="<%= post.head %>" alt="<%= post.username %>" class="img-circle"></a></h3>
 <p class="info">
     <% if (post.reprint_info.reprint_from) { %>
     <br>

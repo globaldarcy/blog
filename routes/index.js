@@ -8,6 +8,7 @@ var Post = require('../models/post');
 // var markdown = require('markdown').markdown;
 var multer = require('multer');
 var passport = require('passport');
+// var GithubStrategy = require('passport-github').Strategy;
 var upload = multer({
   dest: './public/img'
 });

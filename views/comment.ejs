@@ -1,64 +1,30 @@
-<br>
-<% post.comments.forEach(function(comment, index){ %>
-<p>
-    <a href="/u/<%= post.username %>"><img style=" width: 48px; height: 48px;" src="<%= post.head %>" alt="<%= post.username %>" class="img-circle"></a>
-    <a href="<%= comment.website %>"><%= comment.name %></a>
-    <span class="info">回复于 <%= comment.title %></span>
-</p>
-<p><%- comment.content %></p>
-<% }) %>
+<!--<div id="disqus_thread"></div>-->
+<script>
 
-<form method="post">
-    <% if(user) { %>
-    <div class="form-group">
-        <label for="inputName">姓名</label>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    /*
+     var disqus_config = function () {
+     this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+     this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+     };
+     */
+    /*(function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://globalwow.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();*/
+</script>
+<noscript><!--Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>--></noscript>
 
-        <input type="text" value="<%= user.username %>" name="name" class="form-control" id="inputName"
-               placeholder="姓名">
-
-    </div>
-    <div class="form-group">
-        <label for="inputEmail">Email</label>
-
-        <input type="email" value="<%= user.email %>" name="email" class="form-control" id="inputEmail"
-               placeholder="Email">
-
-    </div>
-    <div class="form-group">
-        <label for="inputWebsite">网址</label>
-
-        <input type="text" value="/u/<%= user.username %>" name="website" class="form-control" id="inputWebsite"
-               placeholder="网址">
-
-    </div>
-    <% } else { %>
-    <div class="form-group">
-        <label for="inputName">姓名</label>
-
-        <input type="text" name="name" class="form-control" id="inputName" placeholder="姓名">
-
-    </div>
-    <div class="form-group">
-        <label for="inputEmail">Email</label>
-
-        <input type="email" name="email" class="form-control" id="inputEmail" placeholder="Email">
-
-    </div>
-    <div class="form-group">
-        <label for="inputWebsite">网址</label>
-
-        <input type="text" value="http://" name="website" class="form-control" id="inputWebsite" placeholder="网址">
-
-    </div>
-    <% } %>
-    <div class="form-group">
-        <label for="commentContent">正文</label>
-        <textarea class="form-control" required="required" name="content" id="commentContent" placeholder="正文"
-                  rows="10"></textarea>
-    </div>
-    <div class="form-group">
-        <p class="text-right">
-            <button type="submit" class="btn btn-primary">留言</button>
-        </p>
-    </div>
-</form>
+<!--PC和WAP自适应版-->
+<div id="SOHUCS" sid="请将此处替换为配置SourceID的语句" ></div>
+<script type="text/javascript">
+    (function(){
+        var appid = 'cyt0bvenJ';
+        var conf = 'prod_489d3b6c2b5b361da41a7285b452c42b';
+        var width = window.innerWidth || document.documentElement.clientWidth;
+        if (width < 960) {
+            window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="http://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("http://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })(); </script>
