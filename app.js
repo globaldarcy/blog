@@ -5,6 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var passport = require('passport');
+var GithubStrategy = require('passport-github').Strategy;
+
 var index = require('./routes/index');
 var users = require('./routes/users');
 
@@ -36,6 +39,14 @@ app.use(function (err, req, res, next) {
 app.use('/', index);
 app.use('/users', users);
 
+app.use(passport.initialize());
+passport.use(new GithubStrategy({
+  clientID: '179a890dbe7ccbccb2a1',
+  ClientSecret: '2fa91fd578e5e0a8c838188a23926474d167692c',
+  callbackURL: 'http://localhost:3000/login/github/callback',
+}, function (accessToken, refreshToken, profile, done) {
+  done(null, profile);
+}));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

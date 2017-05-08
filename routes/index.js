@@ -7,6 +7,7 @@ var User = require('../models/user');
 var Post = require('../models/post');
 var markdown = require('markdown').markdown;
 var multer = require('multer');
+var passport = require('passport');
 var upload = multer({
   dest: './public/img'
 });
@@ -343,6 +344,14 @@ router.get('/login', function (req, res) {
     success: req.flash('success').toString(),
     error: req.flash('error').toString(),
   });
+});
+router.get('/login/github', passport.authenticate('github', {session:false}));
+router.get('/login/github/callback', passport.authenticate('github',{
+  session:false,
+  failureRedirect: '/login',
+  successFlash: '登录成功?',
+}), function(req, res){
+  req.session.user = {name:req.user.username, head:'https://gravatar.com/avatar/' + req.user._json.gravatar_id + '?s=48'}
 });
 router.post('/login', checkNotLogin);
 router.post('/login', function (req, res) {
